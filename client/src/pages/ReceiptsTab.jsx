@@ -579,103 +579,137 @@ export default function ReceiptsTab() {
               </div>
 
               {/* Right Column: High Fidelity Receipt Live Preview */}
-              <div style={{ flex: '1 1 500px', padding: 24, backgroundColor: '#f0fff4', boxSizing: 'border-box' }}>
+              <div style={{ flex: '1 1 500px', padding: 24, backgroundColor: '#f0fdf4', boxSizing: 'border-box' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#2f855a' }}>
-                    Live Preview (Branded Document)
+                  <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#16a34a' }}>
+                    Live Preview
                   </span>
-                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, backgroundColor: '#c6f6d5', color: '#2f855a', fontWeight: 'bold' }}>
+                  <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 20, backgroundColor: '#166534', color: '#86efac', fontWeight: 600, letterSpacing: '0.05em' }}>
                     Receipt
                   </span>
                 </div>
 
-                {/* Branded Paper receipt preview sheet */}
+                {/* Premium Branded Receipt Preview */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  border: '1px solid #c6f6d5',
-                  borderRadius: 6,
-                  padding: 24,
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                   minHeight: 500,
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  fontFamily: '"Inter", -apple-system, sans-serif',
                 }}>
-                  
-                  {/* Header Row */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #2f855a', paddingBottom: 16, marginBottom: 20 }}>
-                    <div>
-                      {logoUrl && <img src={logoUrl} alt="Logo" style={{ maxHeight: 36, marginBottom: 8, display: 'block' }} />}
-                      <h4 style={{ fontSize: 16, margin: 0, fontWeight: 700, color: '#1a1a1a' }}>{studioName}</h4>
-                      <div style={{ fontSize: 11, color: '#666', marginTop: 4, lineHeight: 1.4 }}>
-                        {location && <div>{location}</div>}
-                        {website && <div>{website}</div>}
-                        {photographerPhone && <div>Phone: {photographerPhone}</div>}
+                  {/* Emerald/gold accent stripe */}
+                  <div style={{ height: 4, background: 'linear-gradient(90deg, #166534 0%, #22c55e 50%, #c9a96e 100%)' }} />
+
+                  <div style={{ padding: '28px 28px 24px' }}>
+                    {/* Header */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+                      <div>
+                        {logoUrl && <img src={logoUrl} alt="Logo" style={{ maxHeight: 32, marginBottom: 8, display: 'block', objectFit: 'contain' }} />}
+                        <h4 style={{ fontSize: 15, margin: 0, fontWeight: 700, fontFamily: '"Playfair Display", Georgia, serif', color: '#0f172a' }}>{studioName}</h4>
+                        <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, lineHeight: 1.6 }}>
+                          {location && <div>{location}</div>}
+                          {website && <div>{website}</div>}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <h3 style={{ fontSize: 24, margin: 0, fontWeight: 300, fontFamily: '"Playfair Display", Georgia, serif', color: '#86efac', letterSpacing: '0.12em' }}>RECEIPT</h3>
+                        <div style={{ fontSize: 11, color: '#475569', marginTop: 4, fontWeight: 600 }}># REC-DRAFT</div>
+                        <div style={{ marginTop: 8, display: 'inline-block', padding: '3px 12px', borderRadius: 20, fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#166534', backgroundColor: '#f0fdf4', border: '1px solid #16653422' }}>
+                          ✓ Confirmed
+                        </div>
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <h3 style={{ fontSize: 18, margin: 0, fontWeight: 700, color: '#2f855a' }}>RECEIPT</h3>
-                      <div style={{ fontSize: 11, color: '#777', marginTop: 2 }}># REC-DRAFT</div>
+
+                    {/* Gradient divider */}
+                    <div style={{ height: 1, background: 'linear-gradient(90deg, #166534, #e2e8f0 40%, transparent)', marginBottom: 20 }} />
+
+                    {/* Meta Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20, fontSize: 11 }}>
+                      <div>
+                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#94a3b8', fontWeight: 600, marginBottom: 6 }}>Received From</div>
+                        <div style={{ fontWeight: 600, fontSize: 13, color: '#0f172a' }}>{formData.clientName || 'Client Name'}</div>
+                        <div style={{ color: '#64748b', fontSize: 11 }}>{formData.clientEmail || 'client@email.com'}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#94a3b8', fontWeight: 600, marginBottom: 6 }}>Payment Details</div>
+                        <div style={{ color: '#475569', lineHeight: 1.7 }}>
+                          <div><span style={{ color: '#94a3b8' }}>Date:</span> {formData.paymentDate}</div>
+                          <div><span style={{ color: '#94a3b8' }}>Method:</span> {formData.paymentMethod}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Items Table */}
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 0, fontSize: 11 }}>
+                      <thead>
+                        <tr>
+                          <th style={{ textAlign: 'left', padding: '10px 12px', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, color: '#fff', background: '#166534' }}>Description</th>
+                          <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, color: '#fff', background: '#166534' }}>Qty</th>
+                          <th style={{ textAlign: 'right', padding: '10px 12px', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, color: '#fff', background: '#166534' }}>Price</th>
+                          <th style={{ textAlign: 'right', padding: '10px 12px', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, color: '#fff', background: '#166534' }}>Paid</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((item, idx) => {
+                          const qty = parseFloat(item.quantity) || 0;
+                          const price = parseFloat(item.unit_price) || 0;
+                          const total = qty * price;
+                          const rowBg = idx % 2 === 0 ? '#ffffff' : '#f0fdf4';
+                          return (
+                            <tr key={idx} style={{ background: rowBg }}>
+                              <td style={{ padding: '10px 12px', fontWeight: 500, color: '#1e293b', borderBottom: '1px solid #f1f5f9' }}>{item.description || 'Description'}</td>
+                              <td style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', borderBottom: '1px solid #f1f5f9' }}>{qty}</td>
+                              <td style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', borderBottom: '1px solid #f1f5f9' }}>{price.toFixed(2)}</td>
+                              <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600, color: '#0f172a', borderBottom: '1px solid #f1f5f9' }}>{total.toFixed(2)}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+
+                    {/* Total */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+                      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '12px 20px', minWidth: 180 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#166534' }}>Total Paid</span>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: '#166534', fontFamily: '"Playfair Display", Georgia, serif' }}>
+                            {currency} {calculatedTotal.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PAID watermark stamp */}
+                    <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                      <span style={{ display: 'inline-block', padding: '4px 24px', border: '2px solid #16a34a', borderRadius: 6, fontSize: 18, fontWeight: 800, letterSpacing: '0.18em', color: '#16a34a', transform: 'rotate(-3deg)', opacity: 0.3, fontFamily: '"Inter", sans-serif' }}>
+                        PAID
+                      </span>
+                    </div>
+
+                    {/* Notes */}
+                    {formData.notes && (
+                      <div style={{ background: '#f0fdf4', padding: '10px 14px', borderLeft: '3px solid #22c55e', fontSize: 10, marginBottom: 16, borderRadius: '0 4px 4px 0' }}>
+                        <div style={{ fontWeight: 600, color: '#166534', marginBottom: 2, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Payment Notes</div>
+                        <div style={{ color: '#14532d', lineHeight: 1.5 }}>{formData.notes}</div>
+                      </div>
+                    )}
+
+                    {/* Footer */}
+                    <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                      <div style={{ fontSize: 9, color: '#94a3b8', lineHeight: 1.5 }}>
+                        Payment confirmed by <span style={{ fontWeight: 600, color: '#475569' }}>{studioName}</span>.
+                      </div>
+                      <div style={{ textAlign: 'right', minWidth: 120 }}>
+                        <div style={{ borderBottom: '1px solid #cbd5e1', marginBottom: 4, height: 18 }} />
+                        <div style={{ fontSize: 8, color: '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Authorized Signature</div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Receipt Meta Grid */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24, fontSize: 12 }}>
-                    <div>
-                      <div style={{ textTransform: 'uppercase', fontSize: 10, color: '#777', fontWeight: 600, marginBottom: 4 }}>Received From</div>
-                      <div style={{ fontWeight: 600 }}>{formData.clientName || 'Client Name'}</div>
-                      <div style={{ color: '#555' }}>{formData.clientEmail || 'client@email.com'}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ textTransform: 'uppercase', fontSize: 10, color: '#777', fontWeight: 600, marginBottom: 4 }}>Payment Details</div>
-                      <div><strong>Payment Date:</strong> {formData.paymentDate}</div>
-                      <div><strong>Method:</strong> {formData.paymentMethod}</div>
-                    </div>
-                  </div>
-
-                  {/* Items Table */}
-                  <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24, fontSize: 12 }}>
-                    <thead>
-                      <tr style={{ background: '#f0fff4', borderBottom: '1px solid #c6f6d5' }}>
-                        <th style={{ textAlign: 'left', padding: '8px', color: '#2f855a' }}>Description</th>
-                        <th style={{ textAlign: 'right', padding: '8px', color: '#2f855a' }}>Qty</th>
-                        <th style={{ textAlign: 'right', padding: '8px', color: '#2f855a' }}>Unit Price</th>
-                        <th style={{ textAlign: 'right', padding: '8px', color: '#2f855a' }}>Total Paid</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item, idx) => {
-                        const qty = parseFloat(item.quantity) || 0;
-                        const price = parseFloat(item.unit_price) || 0;
-                        const total = qty * price;
-                        return (
-                          <tr key={idx} style={{ borderBottom: '1px solid #f1f3f4' }}>
-                            <td style={{ padding: '8px', color: '#2d3748', fontWeight: 500 }}>{item.description || 'Description'}</td>
-                            <td style={{ padding: '8px', textAlign: 'right', color: '#555' }}>{qty}</td>
-                            <td style={{ padding: '8px', textAlign: 'right', color: '#555' }}>{price.toFixed(2)}</td>
-                            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: '#1a1a1a' }}>{total.toFixed(2)}</td>
-                          </tr>
-                        );
-                      })}
-                      <tr style={{ borderTop: '2px solid #2f855a', background: '#f0fff4' }}>
-                        <td colSpan="3" style={{ padding: '8px', fontWeight: 700, fontSize: 13, color: '#2f855a' }}>Total Paid ({currency})</td>
-                        <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, fontSize: 13, color: '#2f855a' }}>
-                          {calculatedTotal.toFixed(2)}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                  {/* Notes / Reference */}
-                  {formData.notes && (
-                    <div style={{ background: '#faf9f6', padding: 12, borderRadius: 4, borderLeft: '3px solid #2f855a', fontSize: 11, marginBottom: 20 }}>
-                      <div style={{ fontWeight: 600, color: '#2f855a', marginBottom: 2 }}>Payment Notes / Reference</div>
-                      <div style={{ color: '#444', lineHeight: 1.4 }}>{formData.notes}</div>
-                    </div>
-                  )}
-
-                  <div style={{ textAlign: 'center', fontSize: 10, color: '#aaa', borderTop: '1px solid #eee', paddingTop: 12 }}>
-                    Payment received and confirmed. Thank you for your business!
-                  </div>
-
+                  {/* Bottom accent stripe */}
+                  <div style={{ height: 4, background: 'linear-gradient(90deg, #c9a96e 0%, #22c55e 50%, #166534 100%)' }} />
                 </div>
               </div>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useReceipts, useCreateReceipt, useDeleteReceipt, useClients, useInvoices, useUpdateInvoiceStatus } from '../hooks/useApi';
+import { useReceipts, useCreateReceipt, useDeleteReceipt, useClients, useInvoices, useUpdateInvoiceStatus, useSendReceiptEmail } from '../hooks/useApi';
 
 export default function ReceiptsTab() {
   const { data: receipts, isLoading, error } = useReceipts();
@@ -8,6 +8,22 @@ export default function ReceiptsTab() {
   const createReceipt = useCreateReceipt();
   const deleteReceipt = useDeleteReceipt();
   const updateInvoiceStatus = useUpdateInvoiceStatus();
+  const sendReceiptEmail = useSendReceiptEmail();
+
+  const [sendingEmailId, setSendingEmailId] = useState(null);
+
+  const handleSendEmail = async (id) => {
+    try {
+      setSendingEmailId(id);
+      await sendReceiptEmail.mutateAsync(id);
+      alert('Payment receipt email sent successfully to the client!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send email. Make sure your RESEND_API_KEY is configured.');
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -210,15 +226,32 @@ export default function ReceiptsTab() {
                     {rec.notes || '—'}
                   </td>
                   <td style={{ padding: '16px' }}>
-                    <button
-                      title="Delete Receipt"
-                      onClick={() => handleDelete(rec.id, rec.receipt_number)}
-                      style={{ background: 'none', border: 'none', color: 'var(--color-text-faint)', cursor: 'pointer', padding: 4 }}
-                      onMouseEnter={(e) => (e.target.style.color = 'var(--color-error)')}
-                      onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-faint)')}
-                    >
-                      Delete
-                    </button>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                      <button
+                        title="Download PDF"
+                        onClick={() => window.open(`/receipt/${rec.id}/print`, '_blank')}
+                        style={{ background: 'none', border: 'none', color: '#2f855a', cursor: 'pointer', padding: 4 }}
+                      >
+                        PDF
+                      </button>
+                      <button
+                        title="Send via Email"
+                        disabled={sendingEmailId === rec.id}
+                        onClick={() => handleSendEmail(rec.id)}
+                        style={{ background: 'none', border: 'none', color: '#5f6368', cursor: 'pointer', padding: 4, opacity: sendingEmailId === rec.id ? 0.5 : 1 }}
+                      >
+                        {sendingEmailId === rec.id ? 'Sending...' : 'Email'}
+                      </button>
+                      <button
+                        title="Delete Receipt"
+                        onClick={() => handleDelete(rec.id, rec.receipt_number)}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-text-faint)', cursor: 'pointer', padding: 4 }}
+                        onMouseEnter={(e) => (e.target.style.color = 'var(--color-error)')}
+                        onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-faint)')}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

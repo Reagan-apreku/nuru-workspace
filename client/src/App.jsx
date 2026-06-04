@@ -24,6 +24,8 @@ import Success from './pages/Success';
 import Onboarding from './pages/Onboarding';
 import Profile from './pages/Profile';
 import TrialExpired from './pages/TrialExpired';
+import PrintInvoice from './pages/PrintInvoice';
+import PrintReceipt from './pages/PrintReceipt';
 import { useTrialStatus } from './hooks/useTrialStatus';
 
 const queryClient = new QueryClient({
@@ -147,9 +149,25 @@ export default function App() {
               <Route path="receipts" element={<ReceiptsTab />} />
             </Route>
 
-            {/* Client routes */}
             <Route path="/new-client" element={<ClientForm />} />
             <Route path="/success" element={<Success />} />
+
+            <Route
+              path="/invoice/:id/print"
+              element={
+                <ProtectedRoute>
+                  <PrintInvoice />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/receipt/:id/print"
+              element={
+                <ProtectedRoute>
+                  <PrintReceipt />
+                </ProtectedRoute>
+              }
+            />
 
 
             {/* Profile — accessible even with expired trial so user can manage account */}

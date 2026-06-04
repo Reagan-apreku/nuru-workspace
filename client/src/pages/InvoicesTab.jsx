@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useInvoices, useCreateInvoice, useUpdateInvoiceStatus, useDeleteInvoice, useClients } from '../hooks/useApi';
+import { useInvoices, useCreateInvoice, useUpdateInvoiceStatus, useDeleteInvoice, useClients, useSendInvoiceEmail } from '../hooks/useApi';
 
 export default function InvoicesTab() {
   const { data: invoices, isLoading, error } = useInvoices();
@@ -7,6 +7,22 @@ export default function InvoicesTab() {
   const createInvoice = useCreateInvoice();
   const updateInvoiceStatus = useUpdateInvoiceStatus();
   const deleteInvoice = useDeleteInvoice();
+  const sendInvoiceEmail = useSendInvoiceEmail();
+
+  const [sendingEmailId, setSendingEmailId] = useState(null);
+
+  const handleSendEmail = async (id) => {
+    try {
+      setSendingEmailId(id);
+      await sendInvoiceEmail.mutateAsync(id);
+      alert('Invoice email sent successfully to the client!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send email. Make sure your RESEND_API_KEY is configured.');
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -213,6 +229,21 @@ export default function InvoicesTab() {
                   </td>
                   <td style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                      <button
+                        title="Download PDF"
+                        onClick={() => window.open(`/invoice/${inv.id}/print`, '_blank')}
+                        style={{ background: 'none', border: 'none', color: '#1a73e8', cursor: 'pointer', padding: 4 }}
+                      >
+                        PDF
+                      </button>
+                      <button
+                        title="Send via Email"
+                        disabled={sendingEmailId === inv.id}
+                        onClick={() => handleSendEmail(inv.id)}
+                        style={{ background: 'none', border: 'none', color: '#5f6368', cursor: 'pointer', padding: 4, opacity: sendingEmailId === inv.id ? 0.5 : 1 }}
+                      >
+                        {sendingEmailId === inv.id ? 'Sending...' : 'Email'}
+                      </button>
                       {inv.status !== 'paid' && inv.status !== 'cancelled' && (
                         <>
                           <button

@@ -200,3 +200,21 @@ export function useDeleteReceipt() {
     },
   });
 }
+
+export function useSendInvoiceEmail() {
+  return useMutation({
+    mutationFn: async (id) => {
+      const { data } = await api.post(`/invoices/${id}/send-email`);
+      return data;
+    },
+  });
+}
+
+export function useSendReceiptEmail() {
+  return useMutation({
+    mutationFn: async (id) => {
+      const { data } = await api.post(`/receipts/${id}/send-email`);
+      return data;
+    },
+  });
+}

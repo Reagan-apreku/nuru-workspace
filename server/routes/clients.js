@@ -14,6 +14,31 @@ const VALID_SHOOT_TYPES = [
   'Other',
 ];
 
+// GET /api/clients/photographer/:id — get public profile metadata for a photographer (public)
+router.get('/photographer/:id', async (req, res, next) => {
+  try {
+    const { clerkClient } = require('@clerk/express');
+    const user = await clerkClient.users.getUser(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Photographer not found' });
+    }
+    const meta = user.unsafeMetadata || {};
+    res.json({
+      studioName: meta.studioName || 'Nuru Workspace',
+      tagline: meta.tagline || '',
+      location: meta.location || '',
+      website: meta.website || '',
+      logoUrl: meta.logoUrl || null,
+      shootTypes: meta.shootTypes || [],
+    });
+  } catch (err) {
+    if (err.status === 404 || err.statusCode === 404 || err.message?.toLowerCase().includes('not found')) {
+      return res.status(404).json({ error: 'Photographer not found' });
+    }
+    next(err);
+  }
+});
+
 // POST /api/clients — create new client (public, client-facing)
 router.post('/', async (req, res, next) => {
   try {

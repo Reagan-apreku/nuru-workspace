@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClientForm } from '../hooks/useClientForm';
 import { useCreateClient, useSubmitFeedback } from '../hooks/useApi';
@@ -9,8 +9,47 @@ export default function ClientForm() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isShared = searchParams.get('source') === 'shared';
+  const photographerId = searchParams.get('photographer');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { studioName } = useStudioProfile();
+  const { studioName: loggedInStudioName, logoUrl: loggedInLogoUrl } = useStudioProfile();
+
+  const [brand, setBrand] = useState({
+    studioName: 'Nuru Workspace',
+    logoUrl: null,
+  });
+  const [loadingBrand, setLoadingBrand] = useState(false);
+
+  useEffect(() => {
+    if (isShared && photographerId) {
+      setLoadingBrand(true);
+      fetch(`${import.meta.env.VITE_API_URL || '/api'}/clients/photographer/${photographerId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to fetch public brand');
+          return res.json();
+        })
+        .then((data) => {
+          setBrand({
+            studioName: data.studioName || 'Nuru Workspace',
+            logoUrl: data.logoUrl || null,
+          });
+        })
+        .catch((err) => {
+          console.error('Failed to load photographer brand:', err);
+          setBrand({
+            studioName: 'Nuru Workspace',
+            logoUrl: null,
+          });
+        })
+        .finally(() => {
+          setLoadingBrand(false);
+        });
+    } else {
+      setBrand({
+        studioName: loggedInStudioName || 'Nuru Workspace',
+        logoUrl: loggedInLogoUrl || null,
+      });
+    }
+  }, [isShared, photographerId, loggedInStudioName, loggedInLogoUrl]);
 
   const {
     formData,
@@ -36,9 +75,10 @@ export default function ClientForm() {
     setIsSubmitting(true);
 
     try {
-      // Create the client
+      // Create the client with photographer_id if available
       const newClient = await createClient.mutateAsync({
         ...formData,
+        photographer_id: photographerId || null,
       });
 
       // Submit feedback if rating was provided
@@ -113,6 +153,19 @@ export default function ClientForm() {
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
+          {brand.logoUrl && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+              <img
+                src={brand.logoUrl}
+                alt={brand.studioName}
+                style={{
+                  maxHeight: 80,
+                  maxWidth: 200,
+                  objectFit: 'contain',
+                }}
+              />
+            </div>
+          )}
           <h1
             style={{
               fontFamily: 'var(--font-display)',
@@ -135,7 +188,7 @@ export default function ClientForm() {
               marginBottom: 8,
             }}
           >
-            {studioName}
+            {brand.studioName}
           </p>
           <p
             style={{

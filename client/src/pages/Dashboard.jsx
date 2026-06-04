@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useClients, useFeedback } from '../hooks/useApi';
+import { useUser } from '@clerk/react';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
 
 function ShareIntakeButton() {
   const [copied, setCopied] = useState(false);
+  const { user } = useUser();
 
   const handleShare = async () => {
     try {
-      const url = `${window.location.origin}/new-client?source=shared`;
+      const photographerId = user?.id || '';
+      const url = `${window.location.origin}/new-client?source=shared&photographer=${photographerId}`;
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);

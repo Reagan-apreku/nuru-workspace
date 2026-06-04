@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useStudioProfile } from '../hooks/useStudioProfile';
 
@@ -5,7 +6,41 @@ export default function Success() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isShared = searchParams.get('source') === 'shared';
-  const { studioName } = useStudioProfile();
+  const photographerId = searchParams.get('photographer');
+  const { studioName: loggedInStudioName, logoUrl: loggedInLogoUrl } = useStudioProfile();
+
+  const [brand, setBrand] = useState({
+    studioName: 'Nuru Workspace',
+    logoUrl: null,
+  });
+
+  useEffect(() => {
+    if (isShared && photographerId) {
+      fetch(`${import.meta.env.VITE_API_URL || '/api'}/clients/photographer/${photographerId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to fetch public brand');
+          return res.json();
+        })
+        .then((data) => {
+          setBrand({
+            studioName: data.studioName || 'Nuru Workspace',
+            logoUrl: data.logoUrl || null,
+          });
+        })
+        .catch((err) => {
+          console.error('Failed to load photographer brand on success page:', err);
+          setBrand({
+            studioName: 'Nuru Workspace',
+            logoUrl: null,
+          });
+        });
+    } else {
+      setBrand({
+        studioName: loggedInStudioName || 'Nuru Workspace',
+        logoUrl: loggedInLogoUrl || null,
+      });
+    }
+  }, [isShared, photographerId, loggedInStudioName, loggedInLogoUrl]);
 
   return (
     <div
@@ -26,6 +61,21 @@ export default function Success() {
           opacity: 0,
         }}
       >
+        {/* Brand Logo */}
+        {brand.logoUrl && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <img
+              src={brand.logoUrl}
+              alt={brand.studioName}
+              style={{
+                maxHeight: 64,
+                maxWidth: 160,
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+        )}
+
         {/* Checkmark */}
         <div
           className="animate-scale-in"
@@ -65,7 +115,7 @@ export default function Success() {
           }}
         >
           Your details have been saved.<br />
-          Thank you for choosing {studioName}.
+          Thank you for choosing {brand.studioName}.
         </p>
 
         {/* Device return notice */}

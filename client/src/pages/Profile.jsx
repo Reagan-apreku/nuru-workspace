@@ -170,6 +170,7 @@ export default function Profile() {
     location: '',
     website: '',
     tagline: '',
+    logoUrl: null,
     shootTypes: [],
     sessionReminders: true,
     autoThankYou: true,
@@ -201,6 +202,7 @@ export default function Profile() {
         location: meta.location || '',
         website: meta.website || '',
         tagline: meta.tagline || '',
+        logoUrl: meta.logoUrl || null,
         shootTypes: meta.shootTypes || [],
         sessionReminders: meta.sessionReminders !== false,
         autoThankYou: meta.autoThankYou !== false,
@@ -221,6 +223,45 @@ export default function Profile() {
     }));
   }
 
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 120;
+        const MAX_HEIGHT = 120;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        setStudioData((p) => ({ ...p, logoUrl: dataUrl }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   async function handleSave() {
     setSaving(true);
     try {
@@ -232,6 +273,7 @@ export default function Profile() {
           location: studioData.location,
           website: studioData.website,
           tagline: studioData.tagline,
+          logoUrl: studioData.logoUrl || null,
           shootTypes: studioData.shootTypes,
           sessionReminders: studioData.sessionReminders,
           autoThankYou: studioData.autoThankYou,
@@ -397,6 +439,60 @@ export default function Profile() {
               >
                 Your brand details appear in emails and client-facing screens.
               </p>
+
+              <div style={{ marginBottom: 24 }}>
+                <label className="field-label">Studio Logo (Optional)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 8 }}>
+                  {studioData.logoUrl ? (
+                    <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border)', backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={studioData.logoUrl} alt="Logo preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                      <button
+                        type="button"
+                        onClick={() => setStudioData((p) => ({ ...p, logoUrl: null }))}
+                        style={{
+                          position: 'absolute', top: 0, right: 0, width: 20, height: 20, borderRadius: '0 0 0 4px',
+                          backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', fontSize: 12,
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: 64, height: 64, borderRadius: 8, border: '1px dashed var(--color-border)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-faint)'
+                    }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                    </div>
+                  )}
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      style={{ display: 'none' }}
+                      id="logo-upload-profile"
+                    />
+                    <label
+                      htmlFor="logo-upload-profile"
+                      style={{
+                        height: 36, padding: '0 16px', fontSize: 12, display: 'inline-flex', alignItems: 'center',
+                        backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)',
+                        cursor: 'pointer', borderRadius: 4, transition: 'all 0.2s ease', color: 'var(--color-text-primary)',
+                        fontFamily: 'inherit', fontWeight: 400
+                      }}
+                    >
+                      Upload Logo
+                    </label>
+                    <div style={{ fontSize: 11, color: 'var(--color-text-faint)', marginTop: 4 }}>Autoresized to fit client forms.</div>
+                  </div>
+                </div>
+              </div>
 
               <div style={{ marginBottom: 24 }}>
                 <label className="field-label">Studio Name</label>

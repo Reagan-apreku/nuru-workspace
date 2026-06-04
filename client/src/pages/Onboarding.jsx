@@ -111,7 +111,7 @@ export default function Onboarding() {
     loadRate();
   }, []);
 
-  const [studioData, setStudioData] = useState({ studioName: '', location: '', website: '' });
+  const [studioData, setStudioData] = useState({ studioName: '', location: '', website: '', logoUrl: null });
   const [preferences, setPreferences] = useState({
     shootTypes: [], sessionReminders: true, autoThankYou: true,
   });
@@ -130,6 +130,45 @@ export default function Onboarding() {
     }));
   }
 
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 120;
+        const MAX_HEIGHT = 120;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        setStudioData((p) => ({ ...p, logoUrl: dataUrl }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   async function completeOnboarding(planKey = 'trial', ref = null) {
     try {
       const updatePayload = {
@@ -137,6 +176,7 @@ export default function Onboarding() {
         studioName: studioData.studioName || 'My Studio',
         location: studioData.location,
         website: studioData.website,
+        logoUrl: studioData.logoUrl || null,
         shootTypes: preferences.shootTypes,
         sessionReminders: preferences.sessionReminders,
         autoThankYou: preferences.autoThankYou,
@@ -272,6 +312,60 @@ export default function Onboarding() {
             <p style={{ fontSize: 12, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-gold)', marginBottom: 16 }}>Step 1 of 4</p>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 300, color: 'var(--color-text-primary)', marginBottom: 8, letterSpacing: '0.02em' }}>Your Studio</h2>
             <p style={{ fontSize: 15, color: 'var(--color-text-muted)', fontWeight: 300, marginBottom: 48, lineHeight: 1.7 }}>Tell us about your workspace. This helps personalize your experience.</p>
+
+            <div style={{ marginBottom: 28 }}>
+              <label className="field-label">Studio Logo (Optional)</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 8 }}>
+                {studioData.logoUrl ? (
+                  <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border)', backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={studioData.logoUrl} alt="Logo preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    <button
+                      type="button"
+                      onClick={() => setStudioData((p) => ({ ...p, logoUrl: null }))}
+                      style={{
+                        position: 'absolute', top: 0, right: 0, width: 20, height: 20, borderRadius: '0 0 0 4px',
+                        backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', fontSize: 12,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{
+                    width: 64, height: 64, borderRadius: 8, border: '1px dashed var(--color-border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-faint)'
+                  }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </div>
+                )}
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    style={{ display: 'none' }}
+                    id="logo-upload-onboarding"
+                  />
+                  <label
+                    htmlFor="logo-upload-onboarding"
+                    style={{
+                      height: 36, padding: '0 16px', fontSize: 12, display: 'inline-flex', alignItems: 'center',
+                      backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)',
+                      cursor: 'pointer', borderRadius: 4, transition: 'all 0.2s ease', color: 'var(--color-text-primary)',
+                      fontFamily: 'inherit', fontWeight: 400
+                    }}
+                  >
+                    Upload Logo
+                  </label>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-faint)', marginTop: 4 }}>Autoresized to fit client forms.</div>
+                </div>
+              </div>
+            </div>
 
             <div style={{ marginBottom: 28 }}>
               <label className="field-label">Studio Name</label>

@@ -1,0 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+@import "tailwindcss";
+
+/* ========================================
+   DESIGN TOKENS — CUSTOM PROPERTIES
+   ======================================== */
+
+@theme {
+  --color-bg-primary: #ffffff;
+  --color-bg-surface: #f9f8f6;
+  --color-border: #e8e5e0;
+  --color-text-primary: #1a1a1a;
+  --color-text-muted: #888888;
+  --color-text-faint: #aaaaaa;
+  --color-accent-gold: #c9a84c;
+  --color-error: #b94a3a;
+  --color-success: #3a7a52;
+
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ========================================
+   BASE RESETS
+   ======================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+
+/* ========================================
+   FORM ELEMENTS
+   ======================================== */
+
+.input-field {
+  width: 100%;
+  height: 48px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--color-text-primary);
+}
+
+.input-field.error {
+  border-color: var(--color-error);
+}
+
+.input-field::placeholder {
+  color: var(--color-text-faint);
+}
+
+.textarea-field {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  outline: none;
+  resize: vertical;
+  line-height: 1.6;
+  transition: border-color 0.2s ease;
+}
+
+.textarea-field:focus {
+  border-color: var(--color-text-primary);
+}
+
+.textarea-field.error {
+  border-color: var(--color-error);
+}
+
+.select-field {
+  width: 100%;
+  height: 48px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.select-field:focus {
+  border-color: var(--color-text-primary);
+}
+
+.select-field.error {
+  border-color: var(--color-error);
+}
+
+/* ========================================
+   BUTTON STYLES
+   ======================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--color-text-primary);
+  color: var(--color-bg-primary);
+}
+
+.btn-primary:hover {
+  background-color: #333;
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-accent {
+  background-color: var(--color-accent-gold);
+  color: var(--color-bg-primary);
+}
+
+.btn-accent:hover {
+  background-color: #b8993f;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.btn-ghost:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+}
+
+.btn-text {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: none;
+  padding: 0;
+  height: auto;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+.btn-text:hover {
+  color: var(--color-text-primary);
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* ========================================
+   FIELD ERROR MESSAGE
+   ======================================== */
+
+.field-error {
+  font-size: 12px;
+  color: var(--color-error);
+  margin-top: 6px;
+  font-family: var(--font-body);
+}
+
+/* ========================================
+   LABEL
+   ======================================== */
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+}
+
+/* ========================================
+   SECTION SPACING
+   ======================================== */
+
+.section {
+  padding: 80px 0;
+}
+
+.section-sm {
+  padding: 40px 0;
+}
+
+/* ========================================
+   CLERK OVERRIDES — match our design language
+   ======================================== */
+
+.cl-rootBox {
+  width: 100%;
+}
+
+.cl-card {
+  box-shadow: none !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 4px !important;
+}
+
+.cl-headerTitle {
+  font-family: var(--font-display) !important;
+  font-weight: 300 !important;
+}
+
+.cl-formButtonPrimary {
+  background-color: var(--color-text-primary) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-radius: 4px !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: #333 !important;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}

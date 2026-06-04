@@ -1,3 +1,61 @@
+import { useState } from 'react';
+
+/**
+ * Reusable premium Copy Button component
+ */
+function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      title="Copy to clipboard"
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: '4px',
+        cursor: 'pointer',
+        color: copied ? 'var(--color-success)' : 'var(--color-text-faint)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 8,
+        borderRadius: 4,
+        transition: 'all 0.2s ease',
+        verticalAlign: 'middle',
+      }}
+      onMouseEnter={(e) => {
+        if (!copied) e.currentTarget.style.color = 'var(--color-text-primary)';
+      }}
+      onMouseLeave={(e) => {
+        if (!copied) e.currentTarget.style.color = 'var(--color-text-faint)';
+      }}
+    >
+      {copied ? (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      ) : (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      )}
+    </button>
+  );
+}
+
 /**
  * Format date for display in tables and lists
  */
@@ -111,9 +169,11 @@ export default function ClientTable({ clients, onNewClient }) {
                     height: 56,
                     borderBottom: '1px solid var(--color-border)',
                     color: 'var(--color-text-muted)',
+                    whiteSpace: 'nowrap',
                   }}
                 >
-                  {client.email}
+                  <span style={{ verticalAlign: 'middle' }}>{client.email}</span>
+                  <CopyButton text={client.email} />
                 </td>
                 <td
                   style={{
@@ -121,9 +181,11 @@ export default function ClientTable({ clients, onNewClient }) {
                     height: 56,
                     borderBottom: '1px solid var(--color-border)',
                     color: 'var(--color-text-muted)',
+                    whiteSpace: 'nowrap',
                   }}
                 >
-                  {client.phone || '—'}
+                  <span style={{ verticalAlign: 'middle' }}>{client.phone || '—'}</span>
+                  {client.phone && <CopyButton text={client.phone} />}
                 </td>
                 <td
                   style={{

@@ -100,6 +100,7 @@ router.post('/send', clerkBase, requireClerkAuth, async (req, res, next) => {
       subject, 
       body, 
       recipient_type, 
+      recipient_emails,
       studio_name, 
       email_header, 
       email_footer, 
@@ -128,33 +129,126 @@ router.post('/send', clerkBase, requireClerkAuth, async (req, res, next) => {
       });
     }
 
-    let recipients = [];
+    let targetClients = [];
 
     if (recipient_type === 'all') {
       // Fetch all client emails
-      const { data: clients, error: fetchError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('clients')
         .select('first_name, last_name, email')
         .not('email', 'is', null);
 
       if (fetchError) throw fetchError;
+      targetClients = data;
+    } else if (recipient_type.startsWith('shoot:')) {
+      // Fetch clients by shoot type
+      const shootType = recipient_type.substring(6);
+      const { data, error: fetchError } = await supabase
+        .from('clients')
+        .select('first_name, last_name, email')
+        .eq('shoot_type', shootType)
+        .not('email', 'is', null);
 
-      // Filter to unique emails
-      const uniqueClients = [];
-      const seen = new Set();
-      for (const client of clients) {
-        if (!seen.has(client.email)) {
-          seen.add(client.email);
-          uniqueClients.push(client);
-        }
+      if (fetchError) throw fetchError;
+      targetClients = data;
+    } else if (recipient_type === 'custom') {
+      // Custom subset of selected client emails
+      const emails = recipient_emails || [];
+      if (emails.length === 0) {
+        return res.status(400).json({ error: 'No recipient emails selected' });
       }
 
-      recipients = uniqueClients.map((c) => c.email);
+      const { data, error: fetchError } = await supabase
+        .from('clients')
+        .select('first_name, last_name, email')
+        .in('email', emails)
+        .not('email', 'is', null);
 
-      if (recipients.length === 0) {
-        return res.status(400).json({ error: 'No clients to send to' });
+      if (fetchError) throw fetchError;
+
+      // Ensure even if a client is not in database, we still construct recipient payload
+      const databaseEmails = new Set(data.map(d => d.email));
+      const missingEmails = emails.filter(e => !databaseEmails.has(e));
+      
+      targetClients = [
+        ...data,
+        ...missingEmails.map(e => ({ email: e, first_name: 'there', last_name: '' }))
+      ];
+    } else {
+      // Single email recipient
+      const { data, error: fetchError } = await supabase
+        .from('clients')
+        .select('first_name, last_name, email')
+        .eq('email', recipient_type)
+        .limit(1);
+
+      if (fetchError) throw fetchError;
+      if (data && data.length > 0) {
+        targetClients = data;
+      } else {
+        // Fallback for single email input not in DB
+        targetClients = [{ email: recipient_type, first_name: 'there', last_name: '' }];
       }
+    }
 
+    // Filter to unique emails
+    const uniqueClients = [];
+    const seen = new Set();
+    for (const client of targetClients) {
+      if (client.email && !seen.has(client.email)) {
+        seen.add(client.email);
+        uniqueClients.push(client);
+      }
+    }
+
+    if (uniqueClients.length === 0) {
+      return res.status(400).json({ error: 'No clients found matching your selection' });
+    }
+
+    const recipients = uniqueClients.map((c) => c.email);
+
+    // Batch send via Resend or single send
+    if (uniqueClients.length === 1) {
+      const client = uniqueClients[0];
+      const clientName = client.first_name || 'there';
+      const clientLastName = client.last_name || '';
+      const clientFullName = `${client.first_name || ''} ${client.last_name || ''}`.trim() || 'there';
+
+      const vars = {
+        client_name: clientName,
+        client_last_name: clientLastName,
+        client_full_name: clientFullName,
+        studio_name: studio_name || 'Nuru Workspace',
+        studio_tagline: studio_tagline || '',
+        studio_location: studio_location || '',
+        studio_website: studio_website || '',
+        photographer_name: photographer_name || '',
+      };
+
+      const greetingTemplate = email_greeting || 'Hello {{client_name}},';
+      const greeting = replacePlaceholders(greetingTemplate, vars) + '\n\n';
+      const personalizedBody = greeting + replacePlaceholders(body, vars);
+      const personalizedSubject = replacePlaceholders(subject, vars);
+      const personalizedHeader = replacePlaceholders(email_header || studio_name, vars);
+      const personalizedFooter = replacePlaceholders(email_footer, vars);
+
+      const clientHtml = buildEmailHtml(personalizedSubject, personalizedBody, {
+        studioName: studio_name,
+        emailHeader: personalizedHeader,
+        emailFooter: personalizedFooter,
+        brandColor: brand_color,
+      });
+
+      const response = await resend.emails.send({
+        from: fromEmail,
+        to: client.email,
+        subject: personalizedSubject,
+        html: clientHtml,
+      });
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to send email via Resend');
+      }
+    } else {
       // Send batch via Resend
       const batchPayload = uniqueClients.map((client) => {
         const clientName = client.first_name || 'there';
@@ -198,55 +292,14 @@ router.post('/send', clerkBase, requireClerkAuth, async (req, res, next) => {
       if (response.error) {
         throw new Error(response.error.message || 'Failed to send batch email via Resend');
       }
-    } else {
-      // Single recipient
-      recipients = [recipient_type];
+    }
 
-      const { data: client } = await supabase
-        .from('clients')
-        .select('first_name, last_name')
-        .eq('email', recipient_type)
-        .limit(1)
-        .maybeSingle();
-
-      const clientName = client ? (client.first_name || 'there') : 'there';
-      const clientLastName = client ? (client.last_name || '') : '';
-      const clientFullName = client ? `${client.first_name || ''} ${client.last_name || ''}`.trim() : 'there';
-
-      const vars = {
-        client_name: clientName,
-        client_last_name: clientLastName,
-        client_full_name: clientFullName,
-        studio_name: studio_name || 'Nuru Workspace',
-        studio_tagline: studio_tagline || '',
-        studio_location: studio_location || '',
-        studio_website: studio_website || '',
-        photographer_name: photographer_name || '',
-      };
-
-      const greetingTemplate = email_greeting || 'Hello {{client_name}},';
-      const greeting = replacePlaceholders(greetingTemplate, vars) + '\n\n';
-      const personalizedBody = greeting + replacePlaceholders(body, vars);
-      const personalizedSubject = replacePlaceholders(subject, vars);
-      const personalizedHeader = replacePlaceholders(email_header || studio_name, vars);
-      const personalizedFooter = replacePlaceholders(email_footer, vars);
-
-      const clientHtml = buildEmailHtml(personalizedSubject, personalizedBody, {
-        studioName: studio_name,
-        emailHeader: personalizedHeader,
-        emailFooter: personalizedFooter,
-        brandColor: brand_color,
-      });
-
-      const response = await resend.emails.send({
-        from: fromEmail,
-        to: recipient_type,
-        subject: personalizedSubject,
-        html: clientHtml,
-      });
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to send email via Resend');
-      }
+    // Determine the type label to store in db log
+    let displayRecipientType = recipient_type;
+    if (recipient_type === 'custom') {
+      displayRecipientType = `Selected Recipients (${recipients.length})`;
+    } else if (recipient_type.startsWith('shoot:')) {
+      displayRecipientType = `Shoot: ${recipient_type.substring(6)} (${recipients.length} clients)`;
     }
 
     // Log to Supabase
@@ -255,7 +308,7 @@ router.post('/send', clerkBase, requireClerkAuth, async (req, res, next) => {
       .insert({
         subject: subject.trim(),
         body: body.trim(),
-        recipient_type,
+        recipient_type: displayRecipientType,
         sent_by: sentBy,
       })
       .select()
@@ -274,6 +327,8 @@ router.post('/send', clerkBase, requireClerkAuth, async (req, res, next) => {
     next(err);
   }
 });
+
+
 
 // GET /api/emails/sent — get sent email history (auth required)
 router.get('/sent', clerkBase, requireClerkAuth, async (req, res, next) => {

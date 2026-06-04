@@ -24,6 +24,9 @@ function replacePlaceholders(templateStr, variables = {}) {
 
 export default function EmailForm() {
   const [recipientType, setRecipientType] = useState('all');
+  const [selectedEmails, setSelectedEmails] = useState([]);
+  const [singleEmail, setSingleEmail] = useState('');
+  const [clientSearch, setClientSearch] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [errors, setErrors] = useState({});
@@ -52,6 +55,17 @@ export default function EmailForm() {
     const newErrors = {};
     if (!subject.trim()) newErrors.subject = 'Subject is required';
     if (!body.trim()) newErrors.body = 'Email body is required';
+    
+    if (recipientType === 'custom' && selectedEmails.length === 0) {
+      newErrors.recipient_type = 'Please select at least one client';
+    } else if (recipientType === 'single') {
+      if (!singleEmail.trim()) {
+        newErrors.single_email = 'Email address is required';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(singleEmail)) {
+        newErrors.single_email = 'Invalid email address';
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -63,10 +77,10 @@ export default function EmailForm() {
     if (!validate()) return;
 
     try {
-      const result = await sendEmail.mutateAsync({
+      const payload = {
         subject: subject.trim(),
         body: body.trim(),
-        recipient_type: recipientType,
+        recipient_type: recipientType === 'single' ? singleEmail.trim() : recipientType,
         studio_name: profile.studioName,
         email_header: profile.emailHeader,
         email_footer: profile.emailFooter,
@@ -76,12 +90,21 @@ export default function EmailForm() {
         studio_tagline: profile.tagline,
         studio_location: profile.location,
         studio_website: profile.website,
-      });
+      };
+
+      if (recipientType === 'custom') {
+        payload.recipient_emails = selectedEmails;
+      }
+
+      const result = await sendEmail.mutateAsync(payload);
 
       setSuccessMsg(result.message || 'Email sent successfully');
       setSubject('');
       setBody('');
       setRecipientType('all');
+      setSelectedEmails([]);
+      setSingleEmail('');
+      setClientSearch('');
     } catch (err) {
       const serverErrors = err.response?.data?.errors;
       if (serverErrors) {
@@ -92,10 +115,44 @@ export default function EmailForm() {
     }
   }
 
-  // Get unique client emails for the dropdown
+  // Get unique client emails for the dropdown datalist
   const clientEmails = clients
     ? [...new Set(clients.map((c) => c.email))].sort()
     : [];
+
+  // Filter clients based on selection search input
+  const filteredClientsForSelection = clients
+    ? clients.filter((c) => {
+        const query = clientSearch.toLowerCase();
+        return (
+          c.first_name?.toLowerCase().includes(query) ||
+          c.last_name?.toLowerCase().includes(query) ||
+          c.email?.toLowerCase().includes(query) ||
+          c.shoot_type?.toLowerCase().includes(query)
+        );
+      })
+    : [];
+
+  // Handle toggling select/deselect of client emails
+  const toggleEmailSelection = (email) => {
+    setSelectedEmails((prev) =>
+      prev.includes(email) ? prev.filter((e) => e !== email) : [...prev, email]
+    );
+    if (errors.recipient_type) {
+      setErrors((prev) => ({ ...prev, recipient_type: undefined }));
+    }
+  };
+
+  const selectAllClients = () => {
+    if (clients) {
+      const allEmails = [...new Set(clients.map((c) => c.email))].filter(Boolean);
+      setSelectedEmails(allEmails);
+    }
+  };
+
+  const clearAllClients = () => {
+    setSelectedEmails([]);
+  };
 
   return (
     <div className="animate-fade-in" style={{ width: '100%', maxWidth: 1000, margin: '0 auto' }}>
@@ -151,22 +208,167 @@ export default function EmailForm() {
             </div>
           )}
 
-          {/* Recipient */}
+          {/* Recipient Group Selection */}
           <div style={{ marginBottom: 24 }}>
-            <label className="field-label">Recipient</label>
+            <label className="field-label">Recipient Group</label>
             <select
               className={`select-field ${errors.recipient_type ? 'error' : ''}`}
               value={recipientType}
-              onChange={(e) => setRecipientType(e.target.value)}
+              onChange={(e) => {
+                setRecipientType(e.target.value);
+                if (errors.recipient_type) setErrors((prev) => ({ ...prev, recipient_type: undefined }));
+              }}
             >
               <option value="all">All Clients</option>
-              {clientEmails.map((email) => (
-                <option key={email} value={email}>
-                  {email}
-                </option>
-              ))}
+              <optgroup label="By Shoot Type">
+                <option value="shoot:Portrait">Portrait Clients</option>
+                <option value="shoot:Wedding">Wedding Clients</option>
+                <option value="shoot:Corporate/Headshot">Corporate / Headshot Clients</option>
+                <option value="shoot:Product/Commercial">Product / Commercial Clients</option>
+                <option value="shoot:Family">Family Clients</option>
+                <option value="shoot:Maternity">Maternity Clients</option>
+                <option value="shoot:Events">Event Clients</option>
+                <option value="shoot:Other">Other Shoot Clients</option>
+              </optgroup>
+              <optgroup label="Custom Targeted Selections">
+                <option value="custom">Select Specific Clients (Multi-Select)</option>
+                <option value="single">Single Client Email</option>
+              </optgroup>
             </select>
+            {errors.recipient_type && <div className="field-error">{errors.recipient_type}</div>}
           </div>
+
+          {/* Render Multi-Select Box when custom is selected */}
+          {recipientType === 'custom' && (
+            <div 
+              className="animate-fade-in"
+              style={{ 
+                marginBottom: 24, 
+                padding: 16, 
+                border: '1px solid var(--color-border)', 
+                borderRadius: 6,
+                backgroundColor: 'var(--color-bg-surface)' 
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                  Select Clients ({selectedEmails.length} selected)
+                </span>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button 
+                    type="button" 
+                    onClick={selectAllClients}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: 11, cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Select All
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={clearAllClients}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: 11, cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              {/* Search Clients Box */}
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Search clients by name, email, or shoot type..."
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                style={{ height: 36, fontSize: 13, marginBottom: 10, padding: '0 12px' }}
+              />
+
+              {/* Scrollable list of clients */}
+              <div 
+                style={{ 
+                  maxHeight: 180, 
+                  overflowY: 'auto', 
+                  border: '1px solid var(--color-border)', 
+                  borderRadius: 4, 
+                  backgroundColor: '#fff',
+                  padding: '8px 12px' 
+                }}
+              >
+                {filteredClientsForSelection.length === 0 ? (
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', padding: '12px 0', textAlign: 'center' }}>
+                    No clients found
+                  </div>
+                ) : (
+                  filteredClientsForSelection.map((client) => {
+                    const isSelected = selectedEmails.includes(client.email);
+                    return (
+                      <label 
+                        key={client.id}
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          padding: '6px 0', 
+                          cursor: 'pointer',
+                          fontSize: 13,
+                          borderBottom: '1px solid #f9f9f9',
+                          userSelect: 'none'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleEmailSelection(client.email)}
+                          style={{ marginRight: 10, cursor: 'pointer' }}
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                          <span style={{ color: isSelected ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
+                            {client.first_name} {client.last_name} <span style={{ fontSize: 11, color: 'var(--color-text-faint)' }}>({client.email})</span>
+                          </span>
+                          <span 
+                            style={{ 
+                              fontSize: 10, 
+                              fontWeight: 600, 
+                              letterSpacing: '0.02em',
+                              textTransform: 'uppercase',
+                              color: 'var(--color-text-faint)',
+                              backgroundColor: 'var(--color-bg-surface)',
+                              padding: '2px 6px',
+                              borderRadius: 3
+                            }}
+                          >
+                            {client.shoot_type}
+                          </span>
+                        </div>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Render Autocomplete Single Email Input when single is selected */}
+          {recipientType === 'single' && (
+            <div style={{ marginBottom: 24 }} className="animate-fade-in">
+              <label className="field-label">Single Client Email</label>
+              <input
+                type="email"
+                list="client-emails-list"
+                className={`input-field ${errors.single_email ? 'error' : ''}`}
+                placeholder="Enter or select email address"
+                value={singleEmail}
+                onChange={(e) => {
+                  setSingleEmail(e.target.value);
+                  if (errors.single_email) setErrors((prev) => ({ ...prev, single_email: undefined }));
+                }}
+              />
+              <datalist id="client-emails-list">
+                {clientEmails.map((email) => (
+                  <option key={email} value={email} />
+                ))}
+              </datalist>
+              {errors.single_email && <div className="field-error">{errors.single_email}</div>}
+            </div>
+          )}
 
           {/* Subject */}
           <div style={{ marginBottom: 24 }}>

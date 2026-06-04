@@ -10,6 +10,8 @@ const clientsRouter = require('./routes/clients');
 const feedbackRouter = require('./routes/feedback');
 const emailsRouter = require('./routes/emails');
 const paymentsRouter = require('./routes/payments');
+const invoicesRouter = require('./routes/invoices');
+const receiptsRouter = require('./routes/receipts');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +29,8 @@ app.use('/api/clients', clientsRouter);
 app.use('/api/feedback', feedbackRouter);
 app.use('/api/emails', emailsRouter);
 app.use('/api/payments', paymentsRouter);
+app.use('/api/invoices', invoicesRouter);
+app.use('/api/receipts', receiptsRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {

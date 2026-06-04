@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { useClients, useFeedback } from '../hooks/useApi';
+import { useClients, useFeedback, useInvoices, useReceipts } from '../hooks/useApi';
 import { useUser } from '@clerk/react';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
@@ -68,6 +68,8 @@ export default function Dashboard() {
 
   const { data: clients } = useClients();
   const { data: feedback } = useFeedback();
+  const { data: invoices } = useInvoices();
+  const { data: receipts } = useReceipts();
 
   // Compute stats
   const totalClients = clients?.length || 0;
@@ -91,6 +93,34 @@ export default function Dashboard() {
       ).toFixed(1)
     : '—';
 
+  // Compute Financial stats (safely)
+  const invoicesSent = invoices
+    ? invoices.filter((i) => i.status === 'sent' || i.status === 'paid').length
+    : 0;
+
+  const paymentsReceived = receipts ? receipts.length : 0;
+
+  const totalRevenue = receipts
+    ? receipts.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0)
+    : 0;
+
+  const thisMonthEarnings = receipts
+    ? receipts
+        .filter((r) => {
+          const date = new Date(r.payment_date || r.created_at);
+          const now = new Date();
+          return (
+            date.getMonth() === now.getMonth() &&
+            date.getFullYear() === now.getFullYear()
+          );
+        })
+        .reduce((sum, r) => sum + parseFloat(r.amount || 0), 0)
+    : 0;
+
+  const currency = import.meta.env.VITE_PAYSTACK_CURRENCY || 'GHS';
+  const formattedRevenue = `${currency} ${totalRevenue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  const formattedMonthly = `${currency} ${thisMonthEarnings.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+
   // Show "New Client" button only on clients tab
   const isClientsTab = location.pathname === '/dashboard';
 
@@ -99,20 +129,61 @@ export default function Dashboard() {
       <Navbar />
 
       <main className="dashboard-main" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
-        {/* Stats Row */}
+        
+        {/* Section: Performance */}
+        <h3 style={{
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--color-text-muted)',
+          marginTop: 40,
+          marginBottom: 8,
+          fontFamily: 'var(--font-body)'
+        }}>
+          Studio Performance
+        </h3>
         <div
           className="stat-card-container"
           style={{
             display: 'flex',
             gap: 16,
-            padding: '40px 0',
+            paddingBottom: 24,
             flexWrap: 'wrap',
           }}
         >
           <StatCard value={totalClients} label="Total Clients" delay={50} />
-          <StatCard value={thisMonth} label="This Month" delay={100} />
+          <StatCard value={thisMonth} label="New This Month" delay={100} />
           <StatCard value={avgRating} label="Avg Rating" delay={150} />
-          <StatCard value={feedbackCount} label="Feedback Count" delay={200} />
+          <StatCard value={feedbackCount} label="Feedback Received" delay={200} />
+        </div>
+
+        {/* Section: Financials */}
+        <h3 style={{
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--color-text-muted)',
+          marginTop: 16,
+          marginBottom: 8,
+          fontFamily: 'var(--font-body)'
+        }}>
+          Financial Insights
+        </h3>
+        <div
+          className="stat-card-container"
+          style={{
+            display: 'flex',
+            gap: 16,
+            paddingBottom: 40,
+            flexWrap: 'wrap',
+          }}
+        >
+          <StatCard value={formattedRevenue} label="Total Revenue" delay={250} />
+          <StatCard value={formattedMonthly} label="This Month Earnings" delay={300} />
+          <StatCard value={invoicesSent} label="Invoices Sent" delay={350} />
+          <StatCard value={paymentsReceived} label="Payments Received" delay={400} />
         </div>
 
         {/* Section header with action */}

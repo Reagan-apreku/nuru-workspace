@@ -8,6 +8,8 @@ const NAV_ITEMS = [
   { label: 'Clients', path: '/dashboard' },
   { label: 'Feedback', path: '/dashboard/feedback' },
   { label: 'Email', path: '/dashboard/email' },
+  { label: 'Invoices', path: '/dashboard/invoices' },
+  { label: 'Receipts', path: '/dashboard/receipts' },
 ];
 
 export default function Navbar() {

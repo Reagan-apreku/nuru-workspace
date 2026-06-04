@@ -104,3 +104,99 @@ export function useSendEmail() {
     },
   });
 }
+
+// ─── Invoices ──────────────────────────────────────────
+
+export function useInvoices() {
+  return useQuery({
+    queryKey: ['invoices'],
+    queryFn: async () => {
+      const { data } = await api.get('/invoices');
+      return data;
+    },
+  });
+}
+
+export function useCreateInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (invoiceData) => {
+      const { data } = await api.post('/invoices', invoiceData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+}
+
+export function useUpdateInvoiceStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, status, amount, due_date, notes }) => {
+      const { data } = await api.put(`/invoices/${id}`, { status, amount, due_date, notes });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['receipts'] });
+    },
+  });
+}
+
+export function useDeleteInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id) => {
+      const { data } = await api.delete(`/invoices/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+}
+
+// ─── Receipts ──────────────────────────────────────────
+
+export function useReceipts() {
+  return useQuery({
+    queryKey: ['receipts'],
+    queryFn: async () => {
+      const { data } = await api.get('/receipts');
+      return data;
+    },
+  });
+}
+
+export function useCreateReceipt() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (receiptData) => {
+      const { data } = await api.post('/receipts', receiptData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receipts'] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+}
+
+export function useDeleteReceipt() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id) => {
+      const { data } = await api.delete(`/receipts/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receipts'] });
+    },
+  });
+}

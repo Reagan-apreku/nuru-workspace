@@ -17,6 +17,8 @@ import Dashboard from './pages/Dashboard';
 import ClientsTab from './pages/ClientsTab';
 import FeedbackTab from './pages/FeedbackTab';
 import EmailTab from './pages/EmailTab';
+import InvoicesTab from './pages/InvoicesTab';
+import ReceiptsTab from './pages/ReceiptsTab';
 import ClientForm from './pages/ClientForm';
 import Success from './pages/Success';
 import Onboarding from './pages/Onboarding';
@@ -141,6 +143,8 @@ export default function App() {
               <Route index element={<ClientsTab />} />
               <Route path="feedback" element={<FeedbackTab />} />
               <Route path="email" element={<EmailTab />} />
+              <Route path="invoices" element={<InvoicesTab />} />
+              <Route path="receipts" element={<ReceiptsTab />} />
             </Route>
 
             {/* Client routes */}

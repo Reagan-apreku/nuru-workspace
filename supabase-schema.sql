@@ -120,3 +120,59 @@ CREATE INDEX IF NOT EXISTS idx_clients_created_at ON clients(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_clients_photographer_id ON clients(photographer_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_client_id ON feedback(client_id);
 CREATE INDEX IF NOT EXISTS idx_emails_sent_sent_at ON emails_sent(sent_at DESC);
+
+-- ─── INVOICES TABLE ────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS invoices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  invoice_number TEXT NOT NULL,
+  client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
+  client_name TEXT NOT NULL,
+  client_email TEXT NOT NULL,
+  amount NUMERIC(10, 2) NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('draft', 'sent', 'paid', 'cancelled')),
+  issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  due_date DATE,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  photographer_id TEXT -- Clerk user ID
+);
+
+-- ─── RECEIPTS TABLE ────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS receipts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  receipt_number TEXT NOT NULL,
+  invoice_id UUID REFERENCES invoices(id) ON DELETE SET NULL,
+  client_name TEXT NOT NULL,
+  client_email TEXT NOT NULL,
+  amount NUMERIC(10, 2) NOT NULL,
+  payment_method TEXT CHECK (payment_method IN ('Cash', 'Bank Transfer', 'Mobile Money', 'Card', 'Other')),
+  payment_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  photographer_id TEXT -- Clerk user ID
+);
+
+-- Enable RLS
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE receipts ENABLE ROW LEVEL SECURITY;
+
+-- Service role policies
+CREATE POLICY "Service role full access on invoices"
+  ON invoices FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY "Service role full access on receipts"
+  ON receipts FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_invoices_photographer_id ON invoices(photographer_id);
+CREATE INDEX IF NOT EXISTS idx_receipts_photographer_id ON receipts(photographer_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_client_id ON invoices(client_id);
+CREATE INDEX IF NOT EXISTS idx_receipts_invoice_id ON receipts(invoice_id);

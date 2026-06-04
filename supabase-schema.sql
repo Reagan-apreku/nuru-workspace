@@ -134,6 +134,7 @@ CREATE TABLE IF NOT EXISTS invoices (
   issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
   due_date DATE,
   notes TEXT,
+  items JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT now(),
   photographer_id TEXT -- Clerk user ID
 );
@@ -150,6 +151,7 @@ CREATE TABLE IF NOT EXISTS receipts (
   payment_method TEXT CHECK (payment_method IN ('Cash', 'Bank Transfer', 'Mobile Money', 'Card', 'Other')),
   payment_date DATE NOT NULL DEFAULT CURRENT_DATE,
   notes TEXT,
+  items JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT now(),
   photographer_id TEXT -- Clerk user ID
 );
@@ -176,3 +178,7 @@ CREATE INDEX IF NOT EXISTS idx_invoices_photographer_id ON invoices(photographer
 CREATE INDEX IF NOT EXISTS idx_receipts_photographer_id ON receipts(photographer_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_client_id ON invoices(client_id);
 CREATE INDEX IF NOT EXISTS idx_receipts_invoice_id ON receipts(invoice_id);
+
+-- Migration support for existing systems:
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE receipts ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;

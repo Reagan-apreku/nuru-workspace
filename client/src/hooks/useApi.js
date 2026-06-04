@@ -135,8 +135,8 @@ export function useUpdateInvoiceStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, status, amount, due_date, notes }) => {
-      const { data } = await api.put(`/invoices/${id}`, { status, amount, due_date, notes });
+    mutationFn: async ({ id, status, amount, due_date, notes, items }) => {
+      const { data } = await api.put(`/invoices/${id}`, { status, amount, due_date, notes, items });
       return data;
     },
     onSuccess: () => {

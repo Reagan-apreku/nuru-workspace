@@ -370,3 +370,91 @@ input, textarea, select {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+
+/* ========================================
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Layout Padding & Wrap Override */
+  .dashboard-main {
+    padding: 0 16px !important;
+  }
+
+  /* Responsive Display Utility */
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* Grid Stack Helpers */
+  .grid-responsive-split {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  .grid-responsive-2col {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Header Alignments */
+  .dashboard-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+    text-align: center !important;
+  }
+
+  .dashboard-header h2 {
+    font-size: 24px !important;
+  }
+
+  .dashboard-header-buttons {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Navbar Adjustments */
+  .navbar-container {
+    padding: 0 16px !important;
+    height: 56px !important;
+  }
+
+  .navbar-logo {
+    font-size: 18px !important;
+  }
+
+  .navbar-links {
+    gap: 16px !important;
+  }
+
+  .navbar-label-text {
+    display: none !important;
+  }
+
+  /* Stats Cards Grid Layout */
+  .stat-card-container {
+    padding: 24px 0 16px !important;
+    gap: 12px !important;
+  }
+
+  .stat-card {
+    min-width: calc(50% - 6px) !important;
+    padding: 20px 16px !important;
+    border-radius: 6px !important;
+  }
+
+  .stat-card > div:first-child {
+    font-size: 32px !important;
+  }
+
+  .stat-card > div:last-child {
+    font-size: 10px !important;
+    letter-spacing: 0.05em !important;
+  }
+}
+

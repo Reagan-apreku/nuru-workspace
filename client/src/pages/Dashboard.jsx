@@ -95,9 +95,10 @@ export default function Dashboard() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-bg-primary)' }}>
       <Navbar />
 
-      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+      <main className="dashboard-main" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
         {/* Stats Row */}
         <div
+          className="stat-card-container"
           style={{
             display: 'flex',
             gap: 16,
@@ -114,6 +115,7 @@ export default function Dashboard() {
         {/* Section header with action */}
         {isClientsTab && (
           <div
+            className="dashboard-header"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -132,7 +134,7 @@ export default function Dashboard() {
             >
               Clients
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="dashboard-header-buttons" style={{ display: 'flex', alignItems: 'center' }}>
               <ShareIntakeButton />
               <button
                 className="btn btn-accent"

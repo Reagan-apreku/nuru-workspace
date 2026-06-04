@@ -40,6 +40,7 @@ export default function Navbar() {
       }}
     >
       <div
+        className="navbar-container"
         style={{
           maxWidth: 1200,
           margin: '0 auto',
@@ -52,6 +53,7 @@ export default function Navbar() {
       >
         {/* Studio Name */}
         <button
+          className="navbar-logo"
           onClick={() => navigate('/dashboard')}
           style={{
             background: 'none',
@@ -62,13 +64,14 @@ export default function Navbar() {
             letterSpacing: '0.04em',
             color: 'var(--color-text-primary)',
             padding: 0,
+            cursor: 'pointer',
           }}
         >
           {studioName}
         </button>
 
         {/* Nav Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
+        <div className="navbar-links" style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
           {NAV_ITEMS.map((item) => (
             <button
               key={item.path}
@@ -88,6 +91,7 @@ export default function Navbar() {
                   ? '1.5px solid var(--color-text-primary)'
                   : '1.5px solid transparent',
                 transition: 'all 0.2s ease',
+                cursor: 'pointer',
               }}
             >
               {item.label}
@@ -95,6 +99,7 @@ export default function Navbar() {
           ))}
 
           <div
+            className="desktop-only"
             style={{
               width: 1,
               height: 20,
@@ -161,7 +166,7 @@ export default function Navbar() {
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
-            Profile
+            <span className="navbar-label-text">Profile</span>
           </button>
 
           <button
@@ -176,11 +181,19 @@ export default function Navbar() {
               color: 'var(--color-text-faint)',
               transition: 'color 0.2s ease',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
             }}
-            onMouseEnter={(e) => (e.target.style.color = 'var(--color-text-primary)')}
-            onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-faint)')}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-faint)')}
           >
-            Sign Out
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span className="navbar-label-text">Sign Out</span>
           </button>
         </div>
       </div>

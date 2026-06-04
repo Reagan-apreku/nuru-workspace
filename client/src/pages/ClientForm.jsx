@@ -168,6 +168,7 @@ export default function ClientForm() {
         <form onSubmit={handleSubmit}>
           {/* Name Row */}
           <div
+            className="grid-responsive-2col"
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',

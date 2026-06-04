@@ -184,6 +184,7 @@ export default function EmailForm() {
   return (
     <div className="animate-fade-in" style={{ width: '100%', maxWidth: 1000, margin: '0 auto' }}>
       <div 
+        className="grid-responsive-split"
         style={{ 
           display: 'grid', 
           gridTemplateColumns: 'minmax(300px, 1.2fr) minmax(280px, 1fr)', 

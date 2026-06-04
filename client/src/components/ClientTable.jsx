@@ -143,7 +143,9 @@ export default function ClientTable({ clients, onNewClient }) {
 
   return (
     <div className="animate-fade-in">
+      {/* Desktop/Tablet Table View */}
       <div
+        className="desktop-only"
         style={{
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
@@ -199,8 +201,9 @@ export default function ClientTable({ clients, onNewClient }) {
                     padding: '0 16px',
                     height: 56,
                     borderBottom: '1px solid var(--color-border)',
-                    fontWeight: 400,
-                    whiteSpace: 'nowrap',
+                    fontWeight: 500,
+                    color: 'var(--color-text-primary)',
+                    fontSize: 14,
                   }}
                 >
                   {client.first_name} {client.last_name}
@@ -210,12 +213,30 @@ export default function ClientTable({ clients, onNewClient }) {
                     padding: '0 16px',
                     height: 56,
                     borderBottom: '1px solid var(--color-border)',
-                    color: 'var(--color-text-muted)',
-                    whiteSpace: 'nowrap',
+                    fontSize: 14,
                   }}
                 >
-                  <span style={{ verticalAlign: 'middle' }}>{client.email}</span>
-                  <CopyButton text={client.email} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: 'var(--color-text-muted)' }}>{client.email}</span>
+                    <CopyButton text={client.email} />
+                  </div>
+                </td>
+                <td
+                  style={{
+                    padding: '0 16px',
+                    height: 56,
+                    borderBottom: '1px solid var(--color-border)',
+                    fontSize: 14,
+                  }}
+                >
+                  {client.phone ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ color: 'var(--color-text-muted)' }}>{client.phone}</span>
+                      <CopyButton text={client.phone} />
+                    </div>
+                  ) : (
+                    <span style={{ color: 'var(--color-text-faint)', fontStyle: 'italic' }}>—</span>
+                  )}
                 </td>
                 <td
                   style={{
@@ -223,33 +244,10 @@ export default function ClientTable({ clients, onNewClient }) {
                     height: 56,
                     borderBottom: '1px solid var(--color-border)',
                     color: 'var(--color-text-muted)',
-                    whiteSpace: 'nowrap',
+                    fontSize: 14,
                   }}
                 >
-                  <span style={{ verticalAlign: 'middle' }}>{client.phone || '—'}</span>
-                  {client.phone && <CopyButton text={client.phone} />}
-                </td>
-                <td
-                  style={{
-                    padding: '0 16px',
-                    height: 56,
-                    borderBottom: '1px solid var(--color-border)',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 500,
-                      letterSpacing: '0.04em',
-                      textTransform: 'uppercase',
-                      color: 'var(--color-text-muted)',
-                      backgroundColor: 'var(--color-bg-surface)',
-                      padding: '4px 10px',
-                      borderRadius: 3,
-                    }}
-                  >
-                    {client.shoot_type}
-                  </span>
+                  {client.shoot_type}
                 </td>
                 <td
                   style={{
@@ -263,14 +261,14 @@ export default function ClientTable({ clients, onNewClient }) {
                     return (
                       <span
                         style={{
-                          fontSize: 11,
-                          fontWeight: 600,
                           backgroundColor: status.bgColor,
                           color: status.color,
-                          padding: '4px 8px',
+                          padding: '4px 10px',
                           borderRadius: 12,
+                          fontSize: 10,
+                          fontWeight: 600,
+                          letterSpacing: '0.04em',
                           textTransform: 'uppercase',
-                          letterSpacing: '0.02em',
                           display: 'inline-block',
                         }}
                       >
@@ -345,6 +343,125 @@ export default function ClientTable({ clients, onNewClient }) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card List View */}
+      <div className="mobile-only" style={{ display: 'none' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {clients.map((client, idx) => (
+            <div
+              key={client.id}
+              className="animate-fade-in"
+              style={{
+                backgroundColor: 'var(--color-bg-surface)',
+                borderRadius: 8,
+                padding: 20,
+                border: '1px solid var(--color-border)',
+                opacity: 0,
+                animationDelay: `${idx * 40}ms`,
+              }}
+            >
+              {/* Header: Name, Status & Delete */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 550, color: 'var(--color-text-primary)' }}>
+                    {client.first_name} {client.last_name}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4, flexWrap: 'wrap' }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase',
+                        color: 'var(--color-accent-gold)',
+                      }}
+                    >
+                      {client.shoot_type}
+                    </span>
+                    <span style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>•</span>
+                    <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+                      {formatDate(client.created_at)}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Delete button & Status */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {(() => {
+                    const status = getClientStatus(client);
+                    return (
+                      <span
+                        style={{
+                          backgroundColor: status.bgColor,
+                          color: status.color,
+                          padding: '3px 8px',
+                          borderRadius: 12,
+                          fontSize: 9,
+                          fontWeight: 600,
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {status.text}
+                      </span>
+                    );
+                  })()}
+                  
+                  <button
+                    onClick={() => handleDelete(client.id, `${client.first_name} ${client.last_name}`)}
+                    title="Delete Client"
+                    disabled={deleteClient.isPending}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '8px',
+                      cursor: 'pointer',
+                      color: 'var(--color-text-faint)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 4,
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Contact Details (Email/Phone) */}
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 12, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, gap: 8 }}>
+                  <span style={{ color: 'var(--color-text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', flex: 1 }}>
+                    {client.email}
+                  </span>
+                  <CopyButton text={client.email} />
+                </div>
+                {client.phone && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
+                    <span style={{ color: 'var(--color-text-muted)' }}>
+                      {client.phone}
+                    </span>
+                    <CopyButton text={client.phone} />
+                  </div>
+                )}
+              </div>
+
+              {/* Rating stars if available */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border)', paddingTop: 12 }}>
+                <span style={{ fontSize: 11, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 500 }}>Rating</span>
+                <div style={{ fontSize: 12 }}>
+                  {renderStars(client.avg_rating)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

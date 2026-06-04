@@ -1,7 +1,7 @@
 export default function StatCard({ value, label, delay = 0 }) {
   return (
     <div
-      className="animate-fade-in"
+      className="animate-fade-in stat-card"
       style={{
         backgroundColor: 'var(--color-bg-surface)',
         borderRadius: 6,

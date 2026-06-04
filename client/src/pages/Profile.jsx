@@ -425,6 +425,7 @@ export default function Profile() {
               </div>
 
               <div
+                className="grid-responsive-2col"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
@@ -739,6 +740,7 @@ export default function Profile() {
               </p>
 
               <div 
+                className="grid-responsive-split"
                 style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'minmax(300px, 1.2fr) minmax(280px, 1fr)', 

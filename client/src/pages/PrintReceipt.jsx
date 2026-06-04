@@ -88,7 +88,10 @@ export default function PrintReceipt() {
           <div style={{ height: 5, background: 'linear-gradient(90deg, #166534 0%, #22c55e 50%, #c9a96e 100%)' }} />
 
           {/* Document body */}
-          <div style={{ padding: '48px 52px 40px' }}>
+          <div style={{ padding: '48px 52px 40px', display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 160px)' }}>
+
+            {/* Flex-grow content area — pushes footer to bottom */}
+            <div style={{ flex: 1 }}>
 
             {/* Header: Studio info + RECEIPT title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40 }}>
@@ -309,7 +312,9 @@ export default function PrintReceipt() {
               </div>
             )}
 
-            {/* Footer */}
+            </div>{/* End flex-grow content area */}
+
+            {/* Footer — always at bottom */}
             <div style={{
               borderTop: '1px solid #e2e8f0', paddingTop: 28,
               display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',

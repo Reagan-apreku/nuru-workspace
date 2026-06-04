@@ -38,6 +38,21 @@ export function useCreateClient() {
   });
 }
 
+export function useDeleteClient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id) => {
+      const { data } = await api.delete(`/clients/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['feedback'] });
+    },
+  });
+}
+
 // ─── Feedback ──────────────────────────────────────────
 
 export function useFeedback() {

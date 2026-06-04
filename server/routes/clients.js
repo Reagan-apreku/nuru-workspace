@@ -104,4 +104,31 @@ router.get('/:id', clerkBase, requireClerkAuth, async (req, res, next) => {
   }
 });
 
+// DELETE /api/clients/:id — delete client (auth required)
+router.delete('/:id', clerkBase, requireClerkAuth, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Delete associated feedback first to maintain referential integrity
+    const { error: feedbackError } = await supabase
+      .from('feedback')
+      .delete()
+      .eq('client_id', id);
+
+    if (feedbackError) throw feedbackError;
+
+    // Delete the client
+    const { error: clientError } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', id);
+
+    if (clientError) throw clientError;
+
+    res.json({ success: true, message: 'Client deleted successfully' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

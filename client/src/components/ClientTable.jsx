@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDeleteClient } from '../hooks/useApi';
 
 /**
  * Reusable premium Copy Button component
@@ -111,6 +112,19 @@ function getClientStatus(client) {
 }
 
 export default function ClientTable({ clients, onNewClient }) {
+  const deleteClient = useDeleteClient();
+
+  const handleDelete = async (id, name) => {
+    if (window.confirm(`Are you sure you want to delete "${name}"? This will also remove any reviews they submitted.`)) {
+      try {
+        await deleteClient.mutateAsync(id);
+      } catch (err) {
+        console.error('Failed to delete client:', err);
+        alert('Failed to delete client. Please try again.');
+      }
+    }
+  };
+
   if (!clients || clients.length === 0) {
     return (
       <div
@@ -144,7 +158,7 @@ export default function ClientTable({ clients, onNewClient }) {
         >
           <thead>
             <tr>
-              {['Name', 'Email', 'Phone', 'Shoot Type', 'Status', 'Date', 'Rating'].map((header) => (
+              {['Name', 'Email', 'Phone', 'Shoot Type', 'Status', 'Date', 'Rating', ''].map((header) => (
                 <th
                   key={header}
                   style={{
@@ -285,6 +299,47 @@ export default function ClientTable({ clients, onNewClient }) {
                   }}
                 >
                   {renderStars(client.avg_rating)}
+                </td>
+                <td
+                  style={{
+                    padding: '0 16px',
+                    height: 56,
+                    borderBottom: '1px solid var(--color-border)',
+                    textAlign: 'right',
+                  }}
+                >
+                  <button
+                    onClick={() => handleDelete(client.id, `${client.first_name} ${client.last_name}`)}
+                    title="Delete Client"
+                    disabled={deleteClient.isPending}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '8px',
+                      cursor: 'pointer',
+                      color: 'var(--color-text-faint)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 4,
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--color-error)';
+                      e.currentTarget.style.backgroundColor = '#fef2f1';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--color-text-faint)';
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
                 </td>
               </tr>
             ))}

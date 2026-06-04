@@ -14,6 +14,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import OverviewTab from './pages/OverviewTab';
 import ClientsTab from './pages/ClientsTab';
 import FeedbackTab from './pages/FeedbackTab';
 import EmailTab from './pages/EmailTab';
@@ -142,7 +143,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<ClientsTab />} />
+              <Route index element={<OverviewTab />} />
+              <Route path="clients" element={<ClientsTab />} />
               <Route path="feedback" element={<FeedbackTab />} />
               <Route path="email" element={<EmailTab />} />
               <Route path="invoices" element={<InvoicesTab />} />

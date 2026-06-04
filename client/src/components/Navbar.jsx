@@ -5,7 +5,8 @@ import { useStudioProfile } from '../hooks/useStudioProfile';
 import { useTrialStatus } from '../hooks/useTrialStatus';
 
 const NAV_ITEMS = [
-  { label: 'Clients', path: '/dashboard' },
+  { label: 'Dashboard', path: '/dashboard' },
+  { label: 'Clients', path: '/dashboard/clients' },
   { label: 'Feedback', path: '/dashboard/feedback' },
   { label: 'Email', path: '/dashboard/email' },
   { label: 'Invoices', path: '/dashboard/invoices' },

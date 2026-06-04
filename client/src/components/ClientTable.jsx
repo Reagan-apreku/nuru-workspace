@@ -82,6 +82,34 @@ function renderStars(rating) {
   );
 }
 
+function getClientStatus(client) {
+  if (client.avg_rating !== undefined && client.avg_rating !== null) {
+    return {
+      text: 'Reviewed',
+      bgColor: '#eafaf1',
+      color: '#11a355',
+    };
+  }
+  
+  const createdDate = new Date(client.created_at);
+  const now = new Date();
+  const diffTime = Math.abs(now - createdDate);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays <= 2) {
+    return {
+      text: 'New',
+      bgColor: '#e8f4fd',
+      color: '#1a73e8',
+    };
+  }
+
+  return {
+    text: 'Pending Review',
+    bgColor: '#fff8e6',
+    color: '#b27b00',
+  };
+}
+
 export default function ClientTable({ clients, onNewClient }) {
   if (!clients || clients.length === 0) {
     return (
@@ -116,7 +144,7 @@ export default function ClientTable({ clients, onNewClient }) {
         >
           <thead>
             <tr>
-              {['Name', 'Email', 'Phone', 'Shoot Type', 'Date', 'Rating'].map((header) => (
+              {['Name', 'Email', 'Phone', 'Shoot Type', 'Status', 'Date', 'Rating'].map((header) => (
                 <th
                   key={header}
                   style={{
@@ -208,6 +236,34 @@ export default function ClientTable({ clients, onNewClient }) {
                   >
                     {client.shoot_type}
                   </span>
+                </td>
+                <td
+                  style={{
+                    padding: '0 16px',
+                    height: 56,
+                    borderBottom: '1px solid var(--color-border)',
+                  }}
+                >
+                  {(() => {
+                    const status = getClientStatus(client);
+                    return (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          backgroundColor: status.bgColor,
+                          color: status.color,
+                          padding: '4px 8px',
+                          borderRadius: 12,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.02em',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {status.text}
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td
                   style={{

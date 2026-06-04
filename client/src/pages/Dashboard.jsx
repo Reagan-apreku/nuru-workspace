@@ -1,7 +1,63 @@
+import { useState } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useClients, useFeedback } from '../hooks/useApi';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
+
+function ShareIntakeButton() {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    try {
+      const url = `${window.location.origin}/new-client`;
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
+  return (
+    <button
+      className="btn"
+      onClick={handleShare}
+      style={{
+        backgroundColor: copied ? 'var(--color-success)' : 'var(--color-bg-surface)',
+        color: copied ? '#fff' : 'var(--color-text-primary)',
+        border: '1px solid var(--color-border)',
+        marginRight: 12,
+        transition: 'all 0.2s ease',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        height: 38,
+        padding: '0 16px',
+        fontSize: 13,
+        fontWeight: 500,
+        borderRadius: 4,
+        cursor: 'pointer',
+      }}
+    >
+      {copied ? (
+        <>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Link Copied!
+        </>
+      ) : (
+        <>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          Share Intake Link
+        </>
+      )}
+    </button>
+  );
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -76,12 +132,15 @@ export default function Dashboard() {
             >
               Clients
             </h2>
-            <button
-              className="btn btn-accent"
-              onClick={() => navigate('/new-client')}
-            >
-              New Client
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <ShareIntakeButton />
+              <button
+                className="btn btn-accent"
+                onClick={() => navigate('/new-client')}
+              >
+                New Client
+              </button>
+            </div>
           </div>
         )}
 

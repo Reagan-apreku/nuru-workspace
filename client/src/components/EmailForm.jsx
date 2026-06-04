@@ -22,6 +22,33 @@ function replacePlaceholders(templateStr, variables = {}) {
   return result;
 }
 
+const EMAIL_TEMPLATES = [
+  {
+    id: 'none',
+    name: '— Start from scratch —',
+    subject: '',
+    body: '',
+  },
+  {
+    id: 'intake_request',
+    name: 'Client Intake Form Request',
+    subject: 'Preparing for your shoot with {{studio_name}}',
+    body: 'Hi {{client_name}},\n\nWe are thrilled to work with you on your upcoming session!\n\nTo help us capture your vision perfectly, please fill out our client details form here:\n{{studio_website}}/new-client\n\nIt takes less than 2 minutes and helps us prepare all necessary equipment and concepts.\n\nLooking forward to creating magic together!',
+  },
+  {
+    id: 'session_reminder',
+    name: 'Session Confirmation & Details',
+    subject: 'Your upcoming session with {{studio_name}}',
+    body: 'Hi {{client_name}},\n\nThis is a quick reminder about your scheduled photo session with {{studio_name}}.\n\nWe will be meeting at our standard location:\n{{studio_location}}\n\nIf you have any questions about outfits, timing, or concepts, please reply to this email directly.\n\nSee you soon!',
+  },
+  {
+    id: 'feedback_request',
+    name: 'Thank You & Feedback Request',
+    subject: 'We loved working with you! How did we do?',
+    body: 'Hi {{client_name}},\n\nThank you for choosing {{studio_name}} for your recent shoot!\n\nWe loved working with you, and we hope you love the photos. We are always striving to improve our services.\n\nCould you please take a moment to leave us a quick review?\n{{studio_website}}/new-client (You can rate us at the bottom of the form)\n\nWe appreciate your support and hope to work with you again soon!',
+  },
+];
+
 export default function EmailForm() {
   const [recipientType, setRecipientType] = useState('all');
   const [selectedEmails, setSelectedEmails] = useState([]);
@@ -369,6 +396,33 @@ export default function EmailForm() {
               {errors.single_email && <div className="field-error">{errors.single_email}</div>}
             </div>
           )}
+
+          {/* Email Template */}
+          <div style={{ marginBottom: 24 }}>
+            <label className="field-label">Email Template</label>
+            <select
+              className="select-field"
+              defaultValue="none"
+              onChange={(e) => {
+                const template = EMAIL_TEMPLATES.find((t) => t.id === e.target.value);
+                if (template) {
+                  setSubject(template.subject);
+                  setBody(template.body);
+                  setErrors((prev) => ({
+                    ...prev,
+                    subject: template.subject ? undefined : prev.subject,
+                    body: template.body ? undefined : prev.body,
+                  }));
+                }
+              }}
+            >
+              {EMAIL_TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Subject */}
           <div style={{ marginBottom: 24 }}>

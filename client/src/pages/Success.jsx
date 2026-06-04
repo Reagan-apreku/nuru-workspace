@@ -1,8 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useStudioProfile } from '../hooks/useStudioProfile';
 
 export default function Success() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isShared = searchParams.get('source') === 'shared';
   const { studioName } = useStudioProfile();
 
   return (
@@ -67,62 +69,66 @@ export default function Success() {
         </p>
 
         {/* Device return notice */}
-        <p
-          style={{
-            fontSize: 13,
-            color: 'var(--color-text-faint)',
-            marginBottom: 56,
-            fontStyle: 'italic',
-          }}
-        >
-          Please return the device to your photographer.
-        </p>
+        {!isShared && (
+          <p
+            style={{
+              fontSize: 13,
+              color: 'var(--color-text-faint)',
+              marginBottom: 56,
+              fontStyle: 'italic',
+            }}
+          >
+            Please return the device to your photographer.
+          </p>
+        )}
 
         {/* Admin actions — intentionally subtle */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 32,
-          }}
-        >
-          <button
-            className="btn-text"
-            onClick={() => navigate('/new-client')}
+        {!isShared && (
+          <div
             style={{
-              fontSize: 11,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text-faint)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'color 0.2s ease',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 32,
             }}
-            onMouseEnter={(e) => (e.target.style.color = 'var(--color-text-muted)')}
-            onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-faint)')}
           >
-            New Client
-          </button>
-          <button
-            className="btn-text"
-            onClick={() => navigate('/dashboard')}
-            style={{
-              fontSize: 11,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text-faint)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'color 0.2s ease',
-            }}
-            onMouseEnter={(e) => (e.target.style.color = 'var(--color-text-muted)')}
-            onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-faint)')}
-          >
-            Back to Dashboard
-          </button>
-        </div>
+            <button
+              className="btn-text"
+              onClick={() => navigate('/new-client')}
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--color-text-faint)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => (e.target.style.color = 'var(--color-text-muted)')}
+              onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-faint)')}
+            >
+              New Client
+            </button>
+            <button
+              className="btn-text"
+              onClick={() => navigate('/dashboard')}
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--color-text-faint)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => (e.target.style.color = 'var(--color-text-muted)')}
+              onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-faint)')}
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

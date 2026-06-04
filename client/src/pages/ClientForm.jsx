@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClientForm } from '../hooks/useClientForm';
 import { useCreateClient, useSubmitFeedback } from '../hooks/useApi';
 import { useStudioProfile } from '../hooks/useStudioProfile';
@@ -7,6 +7,8 @@ import StarRating from '../components/StarRating';
 
 export default function ClientForm() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isShared = searchParams.get('source') === 'shared';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { studioName } = useStudioProfile();
 
@@ -49,7 +51,7 @@ export default function ClientForm() {
       }
 
       // Navigate to success page
-      navigate('/success');
+      navigate(`/success${window.location.search}`);
     } catch (err) {
       const serverErrors = err.response?.data?.errors;
       if (serverErrors) {
@@ -81,31 +83,33 @@ export default function ClientForm() {
         }}
       >
         {/* Back to Dashboard */}
-        <button
-          onClick={() => navigate('/dashboard')}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'none',
-            border: 'none',
-            fontSize: 13,
-            fontWeight: 400,
-            color: 'var(--color-text-muted)',
-            cursor: 'pointer',
-            padding: '0 0 32px',
-            transition: 'color 0.2s ease',
-            letterSpacing: '0.02em',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-          Back to Dashboard
-        </button>
+        {!isShared && (
+          <button
+            onClick={() => navigate('/dashboard')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'none',
+              border: 'none',
+              fontSize: 13,
+              fontWeight: 400,
+              color: 'var(--color-text-muted)',
+              cursor: 'pointer',
+              padding: '0 0 32px',
+              transition: 'color 0.2s ease',
+              letterSpacing: '0.02em',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Dashboard
+          </button>
+        )}
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 56 }}>

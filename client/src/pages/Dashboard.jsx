@@ -9,7 +9,7 @@ function ShareIntakeButton() {
 
   const handleShare = async () => {
     try {
-      const url = `${window.location.origin}/new-client`;
+      const url = `${window.location.origin}/new-client?source=shared`;
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);

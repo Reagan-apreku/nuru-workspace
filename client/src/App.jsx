@@ -144,30 +144,9 @@ export default function App() {
             </Route>
 
             {/* Client routes */}
-            <Route
-              path="/new-client"
-              element={
-                <ProtectedRoute>
-                  <OnboardingGate>
-                    <TrialGate>
-                      <ClientForm />
-                    </TrialGate>
-                  </OnboardingGate>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/success"
-              element={
-                <ProtectedRoute>
-                  <OnboardingGate>
-                    <TrialGate>
-                      <Success />
-                    </TrialGate>
-                  </OnboardingGate>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/new-client" element={<ClientForm />} />
+            <Route path="/success" element={<Success />} />
+
 
             {/* Profile — accessible even with expired trial so user can manage account */}
             <Route

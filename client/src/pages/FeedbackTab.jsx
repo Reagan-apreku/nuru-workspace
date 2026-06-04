@@ -52,7 +52,7 @@ export default function FeedbackTab() {
   }
 
   return (
-    <div style={{ paddingTop: 20 }}>
+    <div style={{ paddingTop: 20, maxWidth: 1200, margin: '0 auto' }}>
       <h2
         style={{
           fontFamily: 'var(--font-display)',
@@ -65,9 +65,17 @@ export default function FeedbackTab() {
       >
         Client Feedback
       </h2>
-      {feedback.map((item, idx) => (
-        <FeedbackCard key={item.id} feedback={item} delay={idx * 60} />
-      ))}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+          gap: 24,
+        }}
+      >
+        {feedback.map((item, idx) => (
+          <FeedbackCard key={item.id} feedback={item} delay={idx * 60} />
+        ))}
+      </div>
     </div>
   );
 }

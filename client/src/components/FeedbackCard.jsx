@@ -21,8 +21,8 @@ export default function FeedbackCard({ feedback, delay = 0 }) {
         backgroundColor: 'var(--color-bg-surface)',
         borderRadius: 8,
         padding: '32px',
-        maxWidth: 560,
-        margin: '0 auto 20px',
+        width: '100%',
+        boxSizing: 'border-box',
         opacity: 0,
         animationDelay: `${delay}ms`,
       }}
